@@ -88,7 +88,11 @@ allprojects {
         maven("https://maven.citizensnpcs.co/repo")
 
         // IridiumSkyblock
-        maven("https://nexus.iridiumdevelopment.net/repository/maven-releases/")
+        maven("https://nexus.iridiumdevelopment.net/repository/maven-releases/") {
+            content {
+                includeGroup("com.iridium")
+            }
+        }
 
         // HuskPlugins
         maven("https://repo.william278.net/releases")

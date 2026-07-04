@@ -7,6 +7,7 @@ import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityRemoveEvent
 import org.bukkit.event.entity.ProjectileLaunchEvent
 
 class ArrowDataListener(
@@ -34,5 +35,18 @@ class ArrowDataListener(
         }
 
         arrow.setMetadata("shot-from", this.plugin.createMetadataValue(item))
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    fun onRemove(event: EntityRemoveEvent) {
+        val arrow = event.entity
+
+        if (arrow !is Arrow) {
+            return
+        }
+
+        if (arrow.hasMetadata("shot-from")) {
+            arrow.removeMetadata("shot-from", this.plugin)
+        }
     }
 }

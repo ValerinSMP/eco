@@ -1,5 +1,7 @@
 package com.willfp.eco.internal.spigot.integrations.antigrief
 
+// ponytail: nexus.iridiumdevelopment.net down (502), com.iridium:IridiumSkyblock unresolvable. Restore when host recovers.
+/*
 import com.iridium.iridiumskyblock.api.IridiumSkyblockAPI
 import com.iridium.iridiumskyblock.dependencies.iridiumteams.PermissionType
 import com.willfp.eco.core.integrations.antigrief.AntigriefIntegration
@@ -74,3 +76,4 @@ class AntigriefIridiumSkyblock : AntigriefIntegration {
         return this.pluginName.hashCode()
     }
 }
+*/

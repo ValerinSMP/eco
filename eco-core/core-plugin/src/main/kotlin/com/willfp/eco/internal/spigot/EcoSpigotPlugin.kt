@@ -164,7 +164,8 @@ import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefFactionsUU
 import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefGriefPrevention
 import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefHuskClaims
 import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefHuskTowns
-import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefIridiumSkyblock
+// ponytail: com.iridium:IridiumSkyblock unresolvable (nexus.iridiumdevelopment.net down), disabled with AntigriefIridiumSkyblock.kt
+// import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefIridiumSkyblock
 import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefKingdoms
 import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefLands
 import com.willfp.eco.internal.spigot.integrations.antigrief.AntigriefPvPManager
@@ -204,7 +205,8 @@ import com.willfp.eco.internal.spigot.integrations.price.PriceFactoryRoyaleEcono
 import com.willfp.eco.internal.spigot.integrations.price.PriceFactoryUltraEconomy
 import com.willfp.eco.internal.spigot.integrations.shop.ShopDeluxeSellwands
 import com.willfp.eco.internal.spigot.integrations.shop.ShopEconomyShopGUI
-import com.willfp.eco.internal.spigot.integrations.shop.ShopExcellentShop
+// ponytail: ExcellentShop v5 API rewrite, disabled with ShopExcellentShop.kt until migrated
+// import com.willfp.eco.internal.spigot.integrations.shop.ShopExcellentShop
 import com.willfp.eco.internal.spigot.integrations.shop.ShopShopGuiPlus
 import com.willfp.eco.internal.spigot.integrations.shop.ShopZShop
 import com.willfp.eco.internal.spigot.metrics.PlayerflowHandler
@@ -455,7 +457,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
     override fun loadIntegrationLoaders(): List<IntegrationLoader> {
         return listOf(
             // AntiGrief
-            IntegrationLoader("IridiumSkyblock") { AntigriefManager.register(AntigriefIridiumSkyblock()) },
+            // IntegrationLoader("IridiumSkyblock") { AntigriefManager.register(AntigriefIridiumSkyblock()) },
             IntegrationLoader("DeluxeCombat") { AntigriefManager.register(AntigriefDeluxeCombat()) },
             IntegrationLoader("SuperiorSkyblock2") { AntigriefManager.register(AntigriefSuperiorSkyblock2()) },
             IntegrationLoader("BentoBox") { AntigriefManager.register(AntigriefBentoBox()) },
@@ -515,7 +517,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
             IntegrationLoader("DeluxeSellwands") { ShopManager.register(ShopDeluxeSellwands()) },
             IntegrationLoader("EconomyShopGUI") { ShopManager.register(ShopEconomyShopGUI()) },
             IntegrationLoader("EconomyShopGUI-Premium") { ShopManager.register(ShopEconomyShopGUI()) },
-            IntegrationLoader("ExcellentShop") { ShopManager.register(ShopExcellentShop()) },
+            // IntegrationLoader("ExcellentShop") { ShopManager.register(ShopExcellentShop()) },
 
             // Hologram
             IntegrationLoader("HolographicDisplays") { HologramManager.register(HologramHolographicDisplays(this)) },

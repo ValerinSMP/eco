@@ -1,5 +1,9 @@
 package com.willfp.eco.internal.spigot.integrations.shop
 
+// ponytail: ExcellentShop v5 rewrote the whole event/transaction model (no more ShopTransactionEvent/Transaction/TradeType
+// at these packages; now TransactionCompletedEvent + batched ECompletedTransaction with multi-currency BalanceHolder).
+// Needs real migration, not a version bump. Disabled until migrated.
+/*
 import com.willfp.eco.core.integrations.shop.ShopIntegration
 import com.willfp.eco.core.integrations.shop.ShopSellEvent
 import com.willfp.eco.core.price.Price
@@ -67,3 +71,4 @@ class ShopExcellentShop : ShopIntegration {
         return "ExcellentShop"
     }
 }
+*/

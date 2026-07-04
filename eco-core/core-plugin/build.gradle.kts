@@ -116,14 +116,16 @@ dependencies {
     compileOnly("com.denizenscript:denizen:1.3.0-SNAPSHOT") {
         exclude(group = "*", module = "*")
     }
-    compileOnly("com.iridium:IridiumSkyblock:4.1.2")
+    // ponytail: nexus.iridiumdevelopment.net down (502), disabled below until host recovers
+    //compileOnly("com.iridium:IridiumSkyblock:4.1.2")
     compileOnly("net.william278.huskclaims:huskclaims-bukkit:1.5.10")
     compileOnly("net.william278.husktowns:husktowns-bukkit:3.1.4")
     compileOnly("com.github.jojodmo:ItemBridge:b0054538c1")
     compileOnly("de.oliver:FancyHolograms:2.9.1")
     compileOnly("su.nightexpress.excellenteconomy:ExcellentEconomy:2.8.0")
-    compileOnly("su.nightexpress.nightcore:main:2.15.3")
-    compileOnly("su.nightexpress.excellentshop:Core:4.22.0")
+    compileOnly("su.nightexpress.nightcore:main:2.16.2")
+    // ponytail: pinned pre-v5 rewrite; ShopExcellentShop.kt disabled below until migrated to new event/API model
+    compileOnly("su.nightexpress.excellentshop:Core:5.1.2")
     compileOnly("dev.kitteh:factions:4.4.0")
 
     compileOnly(fileTree("../../lib") {
