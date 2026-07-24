@@ -68,6 +68,8 @@ class ExpressionEvaluator(
         val cached = compilationCache.getOrPut(expression) { compile(expression) ?: CompilationFailed }
         val prepared = cached as? PreparedExpression ?: return null
 
+        prepared.constantResult?.let { return it }
+
         val cacheKey = resultCacheKey(expression, context)
         resultCache.get(cacheKey)?.let { return it }
 
@@ -102,7 +104,12 @@ class ExpressionEvaluator(
         val compiled = runCatching {
             ExpressionParser(expression, env).parse()
         }.getOrNull() ?: return null
-        return PreparedExpression(compiled, placeholders)
+        val constantResult = if (placeholders.isEmpty()) {
+            runCatching { compiled.evaluate() }.getOrNull()?.takeIf { it.isFinite() }
+        } else {
+            null
+        }
+        return PreparedExpression(compiled, placeholders, constantResult)
     }
 
     private fun resultCacheKey(expression: String, context: PlaceholderContext): Long {
@@ -118,7 +125,8 @@ class ExpressionEvaluator(
 
     private class PreparedExpression(
         val compiled: CompiledExpression,
-        val placeholderNames: List<String>
+        val placeholderNames: List<String>,
+        val constantResult: Double?
     ) {
         val placeholderCount = placeholderNames.size
     }
