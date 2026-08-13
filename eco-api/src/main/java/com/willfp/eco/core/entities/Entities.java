@@ -137,7 +137,47 @@ public final class Entities {
             TestableEntity part = REGISTRY.get(namespacedKey);
 
             if (part == null) {
-                return new EmptyTestableEntity();
+                if (namespace.equalsIgnoreCase("mythicmobs")) {
+                    final String mobId = keyID;
+                    CustomEntity customEntity = new CustomEntity(
+                        namespacedKey,
+                        e -> {
+                            if (!org.bukkit.Bukkit.getPluginManager().isPluginEnabled("MythicMobs")) {
+                                return false;
+                            }
+                            try {
+                                Object inst = Class.forName("io.lumine.mythic.bukkit.MythicBukkit").getMethod("inst").invoke(null);
+                                Object helper = inst.getClass().getMethod("getAPIHelper").invoke(inst);
+                                Object mobInstance = helper.getClass().getMethod("getMythicMobInstance", Entity.class).invoke(helper, e);
+                                if (mobInstance == null) {
+                                    return false;
+                                }
+                                Object mobType = mobInstance.getClass().getMethod("getType").invoke(mobInstance);
+                                Object internalName = mobType.getClass().getMethod("getInternalName").invoke(mobType);
+                                return mobId.equalsIgnoreCase(String.valueOf(internalName));
+                            } catch (Exception ex) {
+                                return false;
+                            }
+                        },
+                        loc -> {
+                            if (org.bukkit.Bukkit.getPluginManager().isPluginEnabled("MythicMobs")) {
+                                try {
+                                    Object inst = Class.forName("io.lumine.mythic.bukkit.MythicBukkit").getMethod("inst").invoke(null);
+                                    Object helper = inst.getClass().getMethod("getAPIHelper").invoke(inst);
+                                    Object spawned = helper.getClass().getMethod("spawnMythicMob", String.class, Location.class).invoke(helper, mobId, loc);
+                                    if (spawned instanceof Entity) {
+                                        return (Entity) spawned;
+                                    }
+                                } catch (Exception ignored) {}
+                            }
+                            return null;
+                        }
+                    );
+                    customEntity.register();
+                    part = customEntity;
+                } else {
+                    return new EmptyTestableEntity();
+                }
             }
 
             entity = part;

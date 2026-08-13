@@ -180,7 +180,6 @@ allprojects {
         }
 
         compileJava {
-            dependsOn(clean)
             options.encoding = "UTF-8"
             options.isDeprecation = true
         }
@@ -241,11 +240,6 @@ java {
 
 publishing {
     publications {
-        // maven-private: only the shaded 'all' jar
-        create<MavenPublication>("private") {
-            artifactId = rootProject.name
-            artifact(tasks.named("shadowJar"))
-        }
         // maven-releases + GitHub: full set (none, all, sources, javadoc)
         create<MavenPublication>("release") {
             artifactId = rootProject.name

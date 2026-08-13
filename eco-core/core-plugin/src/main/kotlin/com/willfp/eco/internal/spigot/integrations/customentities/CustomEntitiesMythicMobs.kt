@@ -8,22 +8,25 @@ import org.bukkit.NamespacedKey
 
 class CustomEntitiesMythicMobs : CustomEntitiesIntegration {
     override fun registerAllEntities() {
-        val mobManager = MythicBukkit.inst().mobManager
-        val api = MythicBukkit.inst().apiHelper
+        try {
+            val mobManager = MythicBukkit.inst().mobManager
+            val api = MythicBukkit.inst().apiHelper
 
-        for (id in mobManager.mobNames) {
-            val key = NamespacedKey.fromString("mythicmobs:${id.lowercase()}")
-            key ?: continue
-            CustomEntity(
-                key,
-                {
-                    val entityId = api.getMythicMobInstance(it)?.type?.internalName ?: return@CustomEntity false
-                    entityId.equals(id, ignoreCase = true)
-                },
-                {
-                    api.spawnMythicMob(id, it)
-                }
-            ).register()
+            for (id in mobManager.mobNames) {
+                val key = NamespacedKey.fromString("mythicmobs:${id.lowercase()}") ?: continue
+                CustomEntity(
+                    key,
+                    {
+                        val entityId = api.getMythicMobInstance(it)?.type?.internalName ?: return@CustomEntity false
+                        entityId.equals(id, ignoreCase = true)
+                    },
+                    {
+                        api.spawnMythicMob(id, it)
+                    }
+                ).register()
+            }
+        } catch (_: Throwable) {
+            // Ignore if MythicMobs API is loading asynchronously
         }
     }
 
