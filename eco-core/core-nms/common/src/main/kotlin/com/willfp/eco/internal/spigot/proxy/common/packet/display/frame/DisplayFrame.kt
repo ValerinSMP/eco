@@ -7,6 +7,17 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 data class DisplayFrame(val items: Map<Byte, HashedItem>) {
+    /** Visit each slot once without building changed-slot lists and sets. */
+    inline fun visitSlots(
+        newFrame: DisplayFrame,
+        changed: (Byte) -> Unit,
+        unchanged: (Byte) -> Unit
+    ) {
+        for ((slot, data) in newFrame.items) {
+            if (items[slot]?.hash != data.hash) changed(slot) else unchanged(slot)
+        }
+    }
+
     fun getChangedSlots(newFrame: DisplayFrame): List<Byte> {
         val changes = mutableListOf<Byte>()
 

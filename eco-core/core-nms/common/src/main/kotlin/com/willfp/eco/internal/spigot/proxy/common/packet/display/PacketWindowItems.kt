@@ -70,15 +70,12 @@ open class PacketWindowItems(
 
             player.lastDisplayFrame = newFrame
 
-            val changes = lastFrame.getChangedSlots(newFrame)
-
-            for (index in changes) {
-                Display.display(itemStacks[index.toInt()], player)
-            }
-
-            for (index in (itemStacks.indices subtract changes.map { it.toInt() }.toSet())) {
-                itemStacks[index] = lastFrame.getItem(index.toByte()) ?: itemStacks[index]
-            }
+            lastFrame.visitSlots(newFrame,
+                changed = { index -> Display.display(itemStacks[index.toInt()], player) },
+                unchanged = { index ->
+                    itemStacks[index.toInt()] = lastFrame.getItem(index) ?: itemStacks[index.toInt()]
+                }
+            )
         } else {
             itemStacks.forEach { Display.display(it, player) }
         }

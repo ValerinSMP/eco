@@ -92,6 +92,8 @@ public final class Items {
     public static void registerCustomItem(@NotNull final NamespacedKey key,
                                           @NotNull final TestableItem item) {
         REGISTRY.put(key, item);
+        // Predicates may match any cached item, including previously negative lookups.
+        CACHE.invalidateAll();
     }
 
     /**
@@ -119,6 +121,7 @@ public final class Items {
      */
     public static void removeCustomItem(@NotNull final NamespacedKey key) {
         REGISTRY.remove(key);
+        CACHE.invalidateAll();
     }
 
     /**
@@ -378,7 +381,8 @@ public final class Items {
      * @return If is recipe.
      */
     public static boolean isCustomItem(@Nullable final ItemStack itemStack) {
-        return getCustomItem(itemStack) != null;
+        // A presence check must not construct a wrapper (which schedules item validation).
+        return itemStack != null && CACHE.get(HashedItem.of(itemStack)).isPresent();
     }
 
     /**
