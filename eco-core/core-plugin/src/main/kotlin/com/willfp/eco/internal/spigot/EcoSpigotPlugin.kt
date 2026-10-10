@@ -579,6 +579,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
     override fun loadListeners(): List<Listener> {
         val listeners = mutableListOf(
             ArmorListener(),
+            com.willfp.eco.internal.spigot.dragdrop.DragAndDropShellListener(),
             EntityDeathByEntityListeners(this),
             CraftingRecipeListener(this),
             StackedRecipeListener(this),

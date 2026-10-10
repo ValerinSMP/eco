@@ -34,6 +34,14 @@ data class DisplayFrame(val items: Map<Byte, HashedItem>) {
         return items[slot]?.item
     }
 
+    /**
+     * The hash of the item the cached item for this slot was made from, or null if the slot
+     * wasn't in this frame.
+     */
+    fun getHash(slot: Byte): Int? {
+        return items[slot]?.hash
+    }
+
     companion object {
         val EMPTY = DisplayFrame(emptyMap())
     }

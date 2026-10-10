@@ -68,7 +68,6 @@ open class PacketWindowItems(
 
             val lastFrame = player.lastDisplayFrame
 
-            player.lastDisplayFrame = newFrame
 
             lastFrame.visitSlots(newFrame,
                 changed = { index -> Display.display(itemStacks[index.toInt()], player) },
@@ -76,6 +75,11 @@ open class PacketWindowItems(
                     itemStacks[index.toInt()] = lastFrame.getItem(index) ?: itemStacks[index.toInt()]
                 }
             )
+
+            // Cache the displayed items, keeping their original hashes for change detection.
+            player.lastDisplayFrame = DisplayFrame(frameMap.mapValues { (slot, data) ->
+                HashedItem.of(itemStacks[slot.toInt()], data.hash)
+            })
         } else {
             itemStacks.forEach { Display.display(it, player) }
         }

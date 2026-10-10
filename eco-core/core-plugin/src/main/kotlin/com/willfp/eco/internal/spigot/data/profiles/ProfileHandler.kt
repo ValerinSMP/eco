@@ -130,6 +130,7 @@ class ProfileHandler(
 
         plugin.logger.info("Profile writes submitted! Waiting for completion...")
         toHandler.shutdown()
+        fromHandler.shutdown()
 
         plugin.logger.info("Updating previous handler...")
         plugin.dataYml.set("previous-handler", handlerId)

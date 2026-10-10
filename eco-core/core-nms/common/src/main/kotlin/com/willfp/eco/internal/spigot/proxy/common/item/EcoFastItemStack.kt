@@ -1,5 +1,6 @@
 package com.willfp.eco.internal.spigot.proxy.common.item
 
+import com.willfp.eco.core.Eco
 import com.willfp.eco.core.fast.FastItemStack
 import com.willfp.eco.internal.spigot.proxy.common.asNMSStack
 import com.willfp.eco.internal.spigot.proxy.common.makePdc
@@ -14,6 +15,7 @@ import com.willfp.eco.util.toComponent
 import com.willfp.eco.util.toLegacy
 import kotlin.math.max
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextDecoration
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
@@ -36,7 +38,19 @@ private val unstyledComponent = Component.empty().style {
 }
 
 private fun Component.unstyled(): Component {
-    return unstyledComponent.append(this)
+    val useVanillaFormat = Eco.get().ecoPlugin.configYml.getBool("use-vanilla-item-name-format")
+
+    if (!useVanillaFormat) {
+        // Already wrapped, don't nest another wrapper around it on every display cycle.
+        if (this is TextComponent && content().isEmpty() && style() == unstyledComponent.style()) {
+            return this
+        }
+
+        return unstyledComponent.append(this)
+    }
+
+    if (style().isEmpty) return this
+    return this.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
 }
 
 interface ImplementedFIS : FastItemStack {

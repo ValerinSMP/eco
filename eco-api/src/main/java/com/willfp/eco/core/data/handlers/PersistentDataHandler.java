@@ -23,7 +23,9 @@ public abstract class PersistentDataHandler implements Registrable {
     /**
      * The executor.
      */
-    private final ExecutorService executor = Executors.newCachedThreadPool();
+    public static final int DEFAULT_THREADS = 8;
+
+    private final ExecutorService executor;
 
     /**
      * Create a new persistent data handler.
@@ -31,7 +33,12 @@ public abstract class PersistentDataHandler implements Registrable {
      * @param id The id.
      */
     protected PersistentDataHandler(@NotNull final String id) {
+        this(id, DEFAULT_THREADS);
+    }
+
+    protected PersistentDataHandler(@NotNull final String id, final int threads) {
         this.id = id;
+        this.executor = Executors.newFixedThreadPool(Math.max(1, threads));
     }
 
     /**
@@ -71,7 +78,7 @@ public abstract class PersistentDataHandler implements Registrable {
     }
 
     /**
-     * Read a key from persistent data.
+     * Read a key from persistent data on the calling thread; blocks until completed.
      *
      * @param uuid The uuid.
      * @param key  The key.
@@ -81,12 +88,9 @@ public abstract class PersistentDataHandler implements Registrable {
     @Nullable
     public final <T> T read(@NotNull final UUID uuid,
                             @NotNull final PersistentDataKey<T> key) {
-        DataTypeSerializer<T> serializer = key.getType().getSerializer(this);
-        Future<T> future = executor.submit(() -> serializer.readAsync(uuid, key));
-
         try {
-            return future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            return key.getType().getSerializer(this).readAsync(uuid, key);
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
