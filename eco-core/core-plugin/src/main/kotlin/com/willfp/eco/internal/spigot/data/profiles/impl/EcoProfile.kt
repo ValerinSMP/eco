@@ -34,6 +34,12 @@ abstract class EcoProfile(
         return read(key)
     }
 
+    override fun peekCachedValues(keys: Set<PersistentDataKey<*>>): Map<PersistentDataKey<*>, Any> {
+        val answer = LinkedHashMap<PersistentDataKey<*>, Any>()
+        for (key in keys) data[key]?.let { answer[key] = it }
+        return java.util.Collections.unmodifiableMap(answer)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other !is EcoProfile) {
             return false

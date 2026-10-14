@@ -395,6 +395,12 @@ public interface Eco {
     @NotNull
     PlayerProfile loadPlayerProfile(@NotNull UUID uuid);
 
+    /** Optional observation capability; binary-compatible with existing implementations. */
+    default com.willfp.eco.core.data.observation.ProfileObservationAccess getProfileObservationAccess() {
+        return null;
+    }
+
+
     /**
      * Load the server profile.
      *

@@ -143,3 +143,7 @@ eco is licensed under the MIT license. *Click here to read [the entire license](
   <br>
   </div>
 </h1>
+
+## Valerin read-only observation API
+
+See [OBSERVATION-API.md](docs/OBSERVATION-API.md) for UUID cache/storage contracts, supported backends, thread requirements and controlled runtime delivery.

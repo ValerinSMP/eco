@@ -81,6 +81,9 @@ public class DefaultMap<K, V> implements Map<K, V> {
         return map.get(key);
     }
 
+    /** Non-creating lookup, unlike get(). */
+    public V getIfPresent(final Object key) { return map.get(key); }
+
     @Override
     public int size() {
         return map.size();

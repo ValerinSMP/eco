@@ -51,6 +51,9 @@ class MySQLPersistentDataHandler(
         maximumPoolSize = config.getInt("connections")
     })
 
+    fun getObservationReader(): com.willfp.eco.core.data.observation.StorageReader? =
+        if (dataSource.maximumPoolSize < 3) null else com.willfp.eco.internal.spigot.data.observation.JdbcObservationReader(dataSource, prefix)
+
     private val prefix = config.getString("prefix")
 
     private val database = Database.connect(dataSource, connectionAutoRegistration = ExposedConnectionImpl())

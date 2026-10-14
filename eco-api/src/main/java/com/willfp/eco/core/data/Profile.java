@@ -27,4 +27,9 @@ public interface Profile {
      * @return The value, or the default value if not found.
      */
     <T> @NotNull T read(@NotNull PersistentDataKey<T> key);
+
+    /** Cold keys are absent. This never invokes read, the handler or defaults. */
+    default java.util.Map<PersistentDataKey<?>, Object> peekCachedValues(
+            java.util.Set<PersistentDataKey<?>> keys) { return java.util.Map.of(); }
+
 }

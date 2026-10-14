@@ -32,6 +32,8 @@ class ProfileHandler(
 
     private val loaded = ConcurrentHashMap<UUID, EcoProfile>()
 
+    fun peekPlayerProfile(uuid: UUID): EcoPlayerProfile? = loaded[uuid] as? EcoPlayerProfile
+
     fun getPlayerProfile(uuid: UUID): EcoPlayerProfile {
         return loaded.computeIfAbsent(uuid) {
             EcoPlayerProfile(it, this)

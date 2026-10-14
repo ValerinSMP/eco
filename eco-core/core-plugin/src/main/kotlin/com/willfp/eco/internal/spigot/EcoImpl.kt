@@ -292,6 +292,9 @@ class EcoImpl : EcoSpigotPlugin(), Eco {
     override fun getServerProfile() =
         profileHandler.getServerProfile()
 
+    override fun getProfileObservationAccess(): com.willfp.eco.core.data.observation.ProfileObservationAccess =
+        com.willfp.eco.internal.spigot.data.observation.NativeObservationAccess(profileHandler)
+
     override fun loadPlayerProfile(uuid: UUID) =
         profileHandler.getPlayerProfile(uuid)
 
