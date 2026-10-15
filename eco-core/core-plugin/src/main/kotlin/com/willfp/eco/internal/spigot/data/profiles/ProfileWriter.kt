@@ -36,6 +36,19 @@ class ProfileWriter(
         valuesToWrite.put(WriteRequest(uuid, key), write)?.supersede()
     }
 
+    fun flush(player: UUID?): java.util.concurrent.CompletionStage<Void> {
+        for ((request, value) in valuesToWrite.entries.toList()) {
+            if (player != null && request.uuid != player) continue
+            if (!valuesToWrite.remove(request, value)) continue
+            val backend = if (request.key.isSavedLocally) handler.localHandler else handler.defaultHandler
+            backend.writePrepared(value)
+        }
+        return java.util.concurrent.CompletableFuture.allOf(
+            handler.defaultHandler.awaitProfileWrites(player).toCompletableFuture(),
+            handler.localHandler.awaitProfileWrites(player).toCompletableFuture()
+        )
+    }
+
     fun startTickingSaves() {
         plugin.scheduler.runTimer(20, saveInterval) {
             val iterator = valuesToWrite.iterator()

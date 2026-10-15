@@ -292,6 +292,23 @@ class EcoImpl : EcoSpigotPlugin(), Eco {
     override fun getServerProfile() =
         profileHandler.getServerProfile()
 
+    override fun getProfileMutationAccess(): com.willfp.eco.core.data.handlers.ProfileMutationAccess =
+        object : com.willfp.eco.core.data.handlers.ProfileMutationAccess {
+            private fun main() { check(org.bukkit.Bukkit.isPrimaryThread()) }
+            override fun supported() = profileHandler.defaultHandler is com.willfp.eco.internal.spigot.data.handlers.impl.MySQLPersistentDataHandler
+            override fun install(factory: com.willfp.eco.core.data.handlers.ProfileMutationAccess.Factory) {
+                main()
+                val backend = profileHandler.defaultHandler as? com.willfp.eco.internal.spigot.data.handlers.impl.MySQLPersistentDataHandler
+                    ?: throw UnsupportedOperationException("Native MySQL handler required")
+                backend.installNativeWriter(factory)
+            }
+            override fun flush(player: java.util.UUID): java.util.concurrent.CompletionStage<Void> { main(); return profileHandler.profileWriter.flush(player) }
+            override fun flushAll(): java.util.concurrent.CompletionStage<Void> { main(); return profileHandler.profileWriter.flush(null) }
+            override fun publish(player: java.util.UUID, owned: Set<com.willfp.eco.core.data.keys.PersistentDataKey<*>>, values: Map<com.willfp.eco.core.data.keys.PersistentDataKey<*>, Any>): Boolean {
+                main(); return profileHandler.publishCommitted(player, owned, values)
+            }
+        }
+
     override fun getProfileObservationAccess(): com.willfp.eco.core.data.observation.ProfileObservationAccess =
         com.willfp.eco.internal.spigot.data.observation.NativeObservationAccess(profileHandler)
 

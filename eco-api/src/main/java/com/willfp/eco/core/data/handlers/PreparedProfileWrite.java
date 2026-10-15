@@ -6,10 +6,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** Immutable origin-captured task; no recapture when flushed or executed. */
 public final class PreparedProfileWrite {
     private final PersistentDataHandler owner;
+    private final java.util.UUID player;
+    java.util.UUID player(){return player;}
+    PersistentDataHandler owner(){return owner;}
     private final Runnable persistence;
     private final AtomicBoolean claimed=new AtomicBoolean();
     private final CompletableFuture<Void> completion=new CompletableFuture<>();
-    PreparedProfileWrite(PersistentDataHandler owner,Runnable persistence) {this.owner=owner;this.persistence=persistence;}
+    PreparedProfileWrite(PersistentDataHandler owner,java.util.UUID player,Runnable persistence) {this.owner=owner;this.player=player;this.persistence=persistence;}
     public CompletionStage<Void> completion(){return completion.minimalCompletionStage();}
     public void supersede() {if(claimed.compareAndSet(false,true))completion.completeExceptionally(new CancellationException("Coalesced by a newer value"));}
     void dispatch(PersistentDataHandler dispatcher,Executor executor) {

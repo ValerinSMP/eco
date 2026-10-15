@@ -28,6 +28,10 @@ public interface Profile {
      */
     <T> @NotNull T read(@NotNull PersistentDataKey<T> key);
 
+    /** Native commit publication only; default preserves compatibility with other implementations. */
+    default void publishCommittedValues(java.util.Set<PersistentDataKey<?>> owned,
+            java.util.Map<PersistentDataKey<?>,Object> committed) { throw new UnsupportedOperationException("Native publication unavailable"); }
+
     /** Cold keys are absent. This never invokes read, the handler or defaults. */
     default java.util.Map<PersistentDataKey<?>, Object> peekCachedValues(
             java.util.Set<PersistentDataKey<?>> keys) { return java.util.Map.of(); }

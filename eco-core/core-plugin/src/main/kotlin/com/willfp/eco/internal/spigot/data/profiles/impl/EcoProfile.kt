@@ -35,6 +35,13 @@ abstract class EcoProfile(
         return read(key)
     }
 
+    override fun publishCommittedValues(owned: Set<PersistentDataKey<*>>, committed: Map<PersistentDataKey<*>, Any>) {
+        require(committed.keys.all { it in owned })
+        require(committed.all { (key, value) -> key.defaultValue.javaClass.isInstance(value) })
+        owned.forEach { data.remove(it) }
+        data.putAll(committed)
+    }
+
     override fun peekCachedValues(keys: Set<PersistentDataKey<*>>): Map<PersistentDataKey<*>, Any> {
         val answer = LinkedHashMap<PersistentDataKey<*>, Any>()
         for (key in keys) data[key]?.let { answer[key] = it }

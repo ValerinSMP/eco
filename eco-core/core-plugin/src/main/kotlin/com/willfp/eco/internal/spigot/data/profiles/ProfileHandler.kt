@@ -32,6 +32,12 @@ class ProfileHandler(
 
     private val loaded = ConcurrentHashMap<UUID, EcoProfile>()
 
+    fun publishCommitted(uuid: UUID, owned: Set<com.willfp.eco.core.data.keys.PersistentDataKey<*>>, values: Map<com.willfp.eco.core.data.keys.PersistentDataKey<*>, Any>): Boolean {
+        val profile = loaded[uuid] ?: return false
+        profile.publishCommittedValues(owned, values)
+        return true
+    }
+
     fun peekPlayerProfile(uuid: UUID): EcoPlayerProfile? = loaded[uuid] as? EcoPlayerProfile
 
     fun getPlayerProfile(uuid: UUID): EcoPlayerProfile {

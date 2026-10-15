@@ -148,6 +148,6 @@ eco is licensed under the MIT license. *Click here to read [the entire license](
 
 See [OBSERVATION-API.md](docs/OBSERVATION-API.md) for UUID cache/storage contracts, supported backends, thread requirements and controlled runtime delivery.
 
-## Durable enchanting XP development
+## Durable enchanting XP runtime candidate
 
-Receipt/attempt-ack API and origin-fenced writer bridge are implemented but NOT a ready runtime provider. No runtime installation. See [PROFILE-WRITE-BARRIER.md](docs/PROFILE-WRITE-BARRIER.md) for the public contract, tests and remaining integration gates.
+Implemented, compiled and tested in JVM/H2; default disabled, not installed. Real MySQL/Paper validation and external adapters pending. See [contract](docs/PROFILE-WRITE-BARRIER.md).

@@ -395,6 +395,9 @@ public interface Eco {
     @NotNull
     PlayerProfile loadPlayerProfile(@NotNull UUID uuid);
 
+    /** Privileged native mutation SPI; unsupported by default for ABI compatibility. */
+    default com.willfp.eco.core.data.handlers.ProfileMutationAccess getProfileMutationAccess() { return null; }
+
     /** Optional observation capability; binary-compatible with existing implementations. */
     default com.willfp.eco.core.data.observation.ProfileObservationAccess getProfileObservationAccess() {
         return null;

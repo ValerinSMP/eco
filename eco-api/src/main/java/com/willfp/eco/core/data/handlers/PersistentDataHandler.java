@@ -28,6 +28,12 @@ public abstract class PersistentDataHandler implements Registrable {
     private final ExecutorService executor;
 
     private volatile ProfileWriteBarrier profileWriteBarrier;
+    private final java.util.concurrent.ConcurrentMap<UUID, java.util.Set<PreparedProfileWrite>> pendingWrites = new ConcurrentHashMap<>();
+    public final CompletionStage<Void> awaitProfileWrites(UUID player) {
+        var snapshot = new java.util.ArrayList<CompletableFuture<?>>();
+        pendingWrites.forEach((uuid,writes) -> { if(player==null||player.equals(uuid))writes.forEach(w -> snapshot.add(w.completion().toCompletableFuture())); });
+        return CompletableFuture.allOf(snapshot.toArray(CompletableFuture[]::new)).minimalCompletionStage();
+    }
 
     /** One immutable binding per handler. Bootstrap must register before accepting owned mutations. */
     public final synchronized void installProfileWriteBarrier(ProfileWriteBarrier barrier) {
@@ -43,7 +49,7 @@ public abstract class PersistentDataHandler implements Registrable {
         Runnable guarded = captured == null ? null : captured.capture(uuid, key, value);
         DataTypeSerializer<T> serializer = key.getType().getSerializer(this);
         Runnable persist = guarded != null ? guarded : () -> serializer.writeAsync(uuid, key, value);
-        return new PreparedProfileWrite(this, () -> {
+        return new PreparedProfileWrite(this, uuid, () -> {
             // Pre-registration jobs must not bypass a newly installed barrier.
             // Do not recapture a session/revision on this I/O thread.
             if (captured != profileWriteBarrier) throw new IllegalStateException("Writer binding changed; reconcile original mutation");
@@ -52,7 +58,15 @@ public abstract class PersistentDataHandler implements Registrable {
     }
 
     public final void writePrepared(PreparedProfileWrite write) {
-        java.util.Objects.requireNonNull(write).dispatch(this, executor);
+        java.util.Objects.requireNonNull(write);
+        if(write.owner()!=this)throw new IllegalArgumentException("Wrong profile handler");
+        pendingWrites.compute(write.player(), (id,set) -> {
+            if(set==null)set=ConcurrentHashMap.newKeySet();set.add(write);return set;
+        });
+        write.completion().whenComplete((v,e) -> pendingWrites.computeIfPresent(write.player(), (id,set) -> {
+            set.remove(write);return set.isEmpty()?null:set;
+        }));
+        write.dispatch(this, executor);
     }
 
     /**

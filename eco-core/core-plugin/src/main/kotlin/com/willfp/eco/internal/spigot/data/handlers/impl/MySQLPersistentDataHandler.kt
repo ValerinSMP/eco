@@ -51,6 +51,13 @@ class MySQLPersistentDataHandler(
         maximumPoolSize = config.getInt("connections")
     })
 
+    fun installNativeWriter(factory: com.willfp.eco.core.data.handlers.ProfileMutationAccess.Factory) {
+        require(dataSource.maximumPoolSize >= 3) { "Durable native writer requires at least three existing pool connections" }
+        // Only when the optional durable writer is explicitly activated; reuse the current pool.
+        dataSource.hikariConfigMXBean.connectionTimeout = minOf(dataSource.connectionTimeout, 3000L)
+        installProfileWriteBarrier(factory.create(dataSource, prefix))
+    }
+
     fun getObservationReader(): com.willfp.eco.core.data.observation.StorageReader? =
         if (dataSource.maximumPoolSize < 3) null else com.willfp.eco.internal.spigot.data.observation.JdbcObservationReader(dataSource, prefix)
 
