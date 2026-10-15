@@ -27,6 +27,34 @@ public abstract class PersistentDataHandler implements Registrable {
 
     private final ExecutorService executor;
 
+    private volatile ProfileWriteBarrier profileWriteBarrier;
+
+    /** One immutable binding per handler. Bootstrap must register before accepting owned mutations. */
+    public final synchronized void installProfileWriteBarrier(ProfileWriteBarrier barrier) {
+        java.util.Objects.requireNonNull(barrier);
+        if (profileWriteBarrier != null) throw new IllegalStateException("Profile writer already bound");
+        profileWriteBarrier = barrier;
+    }
+
+    /** Capture origin context on the calling thread, before changing the profile cache. No SQL here. */
+    public final <T> PreparedProfileWrite prepareWrite(UUID uuid, PersistentDataKey<T> key, T value) {
+        java.util.Objects.requireNonNull(uuid);java.util.Objects.requireNonNull(key);java.util.Objects.requireNonNull(value);
+        ProfileWriteBarrier captured = profileWriteBarrier;
+        Runnable guarded = captured == null ? null : captured.capture(uuid, key, value);
+        DataTypeSerializer<T> serializer = key.getType().getSerializer(this);
+        Runnable persist = guarded != null ? guarded : () -> serializer.writeAsync(uuid, key, value);
+        return new PreparedProfileWrite(this, () -> {
+            // Pre-registration jobs must not bypass a newly installed barrier.
+            // Do not recapture a session/revision on this I/O thread.
+            if (captured != profileWriteBarrier) throw new IllegalStateException("Writer binding changed; reconcile original mutation");
+            persist.run();
+        });
+    }
+
+    public final void writePrepared(PreparedProfileWrite write) {
+        java.util.Objects.requireNonNull(write).dispatch(this, executor);
+    }
+
     /**
      * Create a new persistent data handler.
      *
@@ -107,8 +135,7 @@ public abstract class PersistentDataHandler implements Registrable {
     public final <T> void write(@NotNull final UUID uuid,
                                 @NotNull final PersistentDataKey<T> key,
                                 @NotNull final T value) {
-        DataTypeSerializer<T> serializer = key.getType().getSerializer(this);
-        executor.submit(() -> serializer.writeAsync(uuid, key, value));
+        writePrepared(prepareWrite(uuid, key, value));
     }
 
     /**

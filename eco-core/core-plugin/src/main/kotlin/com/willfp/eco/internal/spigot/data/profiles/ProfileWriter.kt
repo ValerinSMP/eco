@@ -21,10 +21,19 @@ class ProfileWriter(
 ) {
     private val saveInterval = plugin.configYml.getInt("save-interval").toLong()
     private val autosaveInterval = plugin.configYml.getInt("autosave-interval").toLong()
-    private val valuesToWrite = ConcurrentHashMap<WriteRequest<*>, Any>()
+    private val valuesToWrite = ConcurrentHashMap<WriteRequest<*>, com.willfp.eco.core.data.handlers.PreparedProfileWrite>()
 
     fun <T : Any> write(uuid: UUID, key: PersistentDataKey<T>, value: T) {
-        valuesToWrite[WriteRequest(uuid, key)] = value
+        writePrepared(uuid, key, prepareWrite(uuid, key, value))
+    }
+
+    fun <T : Any> prepareWrite(uuid: UUID, key: PersistentDataKey<T>, value: T): com.willfp.eco.core.data.handlers.PreparedProfileWrite {
+        val dataHandler = if (key.isSavedLocally) handler.localHandler else handler.defaultHandler
+        return dataHandler.prepareWrite(uuid, key, value)
+    }
+
+    fun <T : Any> writePrepared(uuid: UUID, key: PersistentDataKey<T>, write: com.willfp.eco.core.data.handlers.PreparedProfileWrite) {
+        valuesToWrite.put(WriteRequest(uuid, key), write)?.supersede()
     }
 
     fun startTickingSaves() {
@@ -33,13 +42,13 @@ class ProfileWriter(
 
             while (iterator.hasNext()) {
                 val (request, value) = iterator.next()
-                iterator.remove()
+                // Conditional removal preserves a newer origin-captured write for this same key.
+                if (!valuesToWrite.remove(request, value)) continue
 
                 val dataHandler = if (request.key.isSavedLocally) handler.localHandler else handler.defaultHandler
 
                 // Pass the value to the data handler
-                @Suppress("UNCHECKED_CAST")
-                dataHandler.write(request.uuid, request.key as PersistentDataKey<Any>, value)
+                dataHandler.writePrepared(value)
             }
         }
     }

@@ -14,9 +14,10 @@ abstract class EcoProfile(
     private val data = ConcurrentHashMap<PersistentDataKey<*>, Any>()
 
     override fun <T : Any> write(key: PersistentDataKey<T>, value: T) {
+        // Admission and the session/revision stamp precede any cache mutation.
+        val prepared = handler.profileWriter.prepareWrite(uuid, key, value)
         this.data[key] = value
-
-        handler.profileWriter.write(uuid, key, value)
+        handler.profileWriter.writePrepared(uuid, key, prepared)
     }
 
     override fun <T : Any> read(key: PersistentDataKey<T>): T {
